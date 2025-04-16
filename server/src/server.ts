@@ -7,20 +7,23 @@ import { expressMiddleware } from '@apollo/server/express4';
 import{ typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './services/auth.js';
 
+const PORT = process.env.PORT || 3001;
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  introspection: true,
 });
-
+const app = express();
 const startApolloServer = async () => {
   await server.start();
-  db.once('open', () => {
-    console.log('MongoDB database connected');
-});
+  await db();
+//   .once('open', () => {
+//     console.log('MongoDB database connected');
+// });
   
-  const PORT = process.env.PORT || 3001;
-  const app = express();
+  
+  
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
