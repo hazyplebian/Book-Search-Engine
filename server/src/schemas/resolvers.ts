@@ -2,11 +2,11 @@ import User from "../models/User.js";
 import { signToken } from "../services/auth.js";
 
 interface AddUserArgs {
-    input: {
-        username: string;
-        email: string;
-        password: string;
-    };
+    
+    username: string;
+    email: string;
+    password: string;
+
 }
 
 interface LoginArgs {
@@ -43,7 +43,7 @@ const resolvers = {
         },
     },
     Mutation: {
-        addUser: async (_parent: unknown, { input }: AddUserArgs) => {
+        addUser: async (_parent: unknown,  input : AddUserArgs) => {
             const user = await User.create(input);
             const token = signToken(user.username, user.email, user._id);
             return { token, user };
