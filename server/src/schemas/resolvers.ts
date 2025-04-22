@@ -41,6 +41,12 @@ const resolvers = {
             }
             throw new Error("Not authenticated");
         },
+        getUser: async (_parent: unknown, { username }: { username: string }) => {
+            return User.findOne({ username }).populate("savedBooks");
+        },
+        getAllUsers: async () => {
+            return User.find().populate("savedBooks");
+        }
     },
     Mutation: {
         addUser: async (_parent: unknown,  input : AddUserArgs) => {

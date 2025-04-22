@@ -5,11 +5,11 @@ import type { UserPayload } from '../types/express';
 import dotenv from 'dotenv';
 dotenv.config();
 
-interface JwtPayload {
-  _id: unknown;
-  username: string;
-  email: string,
-}
+// interface JwtPayload {
+//   _id: unknown;
+//   username: string;
+//   email: string,
+// }
 
 
 export const authenticateToken = (req: Request): UserPayload | undefined => {
