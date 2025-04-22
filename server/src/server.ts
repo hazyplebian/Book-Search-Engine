@@ -5,11 +5,12 @@ import db from './config/connection.js';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import{ typeDefs, resolvers } from './schemas/index.js';
-// import { authenticateToken } from './services/auth.js';
+import { authenticateToken } from './services/auth.js';
+import type { Context } from './types/express'; // or wherever you saved it
 
 const PORT = process.env.PORT || 3001;
 
-const server = new ApolloServer({
+const server = new ApolloServer<Context>({
   typeDefs,
   resolvers,
   introspection: true,
@@ -18,21 +19,21 @@ const app = express();
 const startApolloServer = async () => {
   await server.start();
   await db();
-//   .once('open', () => {
-//     console.log('MongoDB database connected');
-// });
-  
-  
-  
+ 
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 
-  app.use('/graphql', expressMiddleware(server as any,
-    // {
-    //   context: authenticateToken as any || {}
-    // }
-  ));
+app.use(
+  '/graphql',
+  expressMiddleware(server, {
+    context: async ({ req }) => {
+      const user = authenticateToken(req);
+      console.log('Context User:', user); // ✅ TEMP: Log user to verify
+      return { user }; // `user` will be passed to resolvers via `context.user`
+    },
+  })
+);
 
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/dist')));

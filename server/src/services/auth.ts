@@ -1,6 +1,7 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request } from 'express';
 import jwt from 'jsonwebtoken';
-import {GraphQLError} from 'graphql';
+import { GraphQLError } from 'graphql';
+import type { UserPayload } from '../types/express';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -10,32 +11,36 @@ interface JwtPayload {
   email: string,
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
 
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
+export const authenticateToken = (req: Request): UserPayload | undefined => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.split(' ')[1]; // expects "Bearer <token>"
+  console.log("headers", authHeader)
+  console.log("Token", token)
+  console.log("SECRET", process.env.JWT_SECRET_KEY)
+  if (!token) {
+    console.log("No token")
+    return;
+  }
 
+  try {
     const secretKey = process.env.JWT_SECRET_KEY || '';
-
-    jwt.verify(token, secretKey, (err, user) => {
-      if (err) {
-        res.sendStatus(403); // Forbidden
-      }
-
-      req.user = user as JwtPayload;
-      next();
-    });
-  } else {
-      res.sendStatus(401); // Unauthorized
+    const decoded = jwt.verify(token, secretKey) as { data: UserPayload };
+    console.log("DECODED", decoded)
+    console.log("DATA", decoded.data)
+    return decoded.data;
+  } catch (error) {
+    console.error('Invalid token:', error);
+    return;
   }
 };
 
 export const signToken = (username: string, email: string, _id: unknown) => {
   const payload = { username, email, _id };
   const secretKey = process.env.JWT_SECRET_KEY || '';
+  console.log(secretKey)
 
-  return jwt.sign(payload, secretKey, { expiresIn: '1h' });
+  return jwt.sign({ data: payload }, secretKey, { expiresIn: '2h' });
 };
 
 export class AuthenticationError extends GraphQLError {
@@ -44,5 +49,3 @@ export class AuthenticationError extends GraphQLError {
     Object.defineProperty(this, 'name', { value: 'AuthenticationError' });
   }
 };
-
-
