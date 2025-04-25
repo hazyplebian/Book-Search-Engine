@@ -21,9 +21,17 @@ const SavedBooks = () => {
   // Handler to delete a book
   const handleDeleteBook = async (bookId: string) => {
     if (!Auth.loggedIn()) return false;
+    const token = Auth.getToken();
+    if (!token) return false;
     try {
-      await removeBookMutation({ variables: { bookId } });
-      // Remove the book ID from localStorage upon success
+      await removeBookMutation({ 
+        variables: { bookId },
+        context: {
+        headers: {
+        authorization: `Bearer ${token}`,
+              },
+            },
+      });
       removeBookId(bookId);
       return true;
     } catch (err) {
