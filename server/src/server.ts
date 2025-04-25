@@ -1,13 +1,13 @@
 import express from 'express';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';         // ← add this
+import { fileURLToPath } from 'node:url';    
 import type { Request, Response } from 'express';
 import db from './config/connection.js';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './services/auth.js';
-import type { Context } from './types/express';   // or wherever you saved it
+import type { Context } from './types/express';
 
 // ─── shim for __dirname in ESM ────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
@@ -36,23 +36,20 @@ const startApolloServer = async () => {
     expressMiddleware(server, {
       context: async ({ req }) => {
         const user = authenticateToken(req);
-        console.log('Context User:', user); // ✅ TEMP: Log user to verify
+        console.log('Context User:', user);
         return { user };
       },
     })
   );
 
   if (process.env.NODE_ENV === 'production') {
-    app.use(
-      express.static(
-        path.join(__dirname, '../client/dist')
-      )
-    );
+    // point two levels up from server/dist into client/dist
+    const clientBuildPath = path.resolve(__dirname, '../../client/dist');
+
+    app.use(express.static(clientBuildPath));
 
     app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(
-        path.join(__dirname, '../client/dist/index.html')
-      );
+      res.sendFile(path.resolve(clientBuildPath, 'index.html'));
     });
   }
 
