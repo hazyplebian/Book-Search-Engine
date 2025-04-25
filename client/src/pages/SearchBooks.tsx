@@ -83,14 +83,7 @@ const SearchBooks = () => {
   
       // Execute the SAVE_BOOK mutation with only the necessary fields
       await saveBookMutation({
-        variables: { 
-          bookId:      bookToSave.bookId,
-          authors:     bookToSave.authors,
-          description: bookToSave.description,
-          title:       bookToSave.title,
-          image:       bookToSave.image,
-          link:        bookToSave.link,     // make sure you actually populated `link` above!
-        },
+        variables: { bookData: bookInput },
         context: {
           headers: {
             authorization: `Bearer ${token}`,
