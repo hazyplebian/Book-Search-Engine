@@ -57,7 +57,6 @@ export const LOGIN_USER = gql`
                 link
             }
         }
-    }
     `;
 
     export const REMOVE_BOOK = gql`
