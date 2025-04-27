@@ -38,7 +38,10 @@ const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
   
     try {
       const { data } = await loginUser({
-        variables: { email: userFormData.email, password: userFormData.password },
+        variables: { 
+          email: userFormData.email,
+          password: userFormData.password,
+         },
       });
   
       if (!data || !data.login || !data.login.token) {
