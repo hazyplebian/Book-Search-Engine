@@ -19,11 +19,13 @@ const resolvers = {
   Mutation: {
     addUser: async (_parent: any, args: any): Promise<{ token: string; user: IUserDocument }> => {
       const user = await User.create(args);
+      console.log('add user', user);
       const token = signToken(user.username, user.email, user._id);
             
       return { token, user };
     },
     login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; user: IUserDocument }> => {
+      console.log('email', email);
       const user = await User.findOne({ email });
 
       if (!user || !(await user.isCorrectPassword(password))) {
